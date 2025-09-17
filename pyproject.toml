@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uv-sql-tool"
+version = "0.1.0"
+description = "A tool for migrating legacy data into Dynamics Finance & Operations."
+authors = [
+    {name = "Varun Shah", email = "varun.shah@sunrise.co"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "mcp>=1.0.0",
+    "pyodbc>=4.0.0",
+]
+
+[project.scripts]
+uv-sql-tool = "uv_sql_tool.cli:main"
+uv-sql-server = "uv_sql_tool.__main__:main"
+
+[project.urls]
+"Homepage" = "https://github.com/varuns-sunrise/uvsqltool"
+"Documentation" = "https://github.com/varuns-sunrise/uvsqltool"
+"Repository" = "https://github.com/varuns-sunrise/uvsqltool"
+"Issues" = "https://github.com/varuns-sunrise/uvsqltool/issues"
+
+[tool.uv]
+# Enable UV workspace support
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "ruff>=0.1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uv_sql_tool"]
