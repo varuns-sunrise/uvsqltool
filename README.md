@@ -1,3 +1,25 @@
+# Data Migration Automation: Scenario, Solution & Benefits
+
+## Scenario & Problem
+Many customers migrating to Microsoft Dynamics Finance & Operations (F&O) cannot provide legacy data directly in a SQL database. Instead, they extract data into CSV files with unfriendly, technical column names. They also supply a mapping file to translate these legacy column names to logical English names. Manually creating SQL tables and stored procedures for each file and mapping is labor-intensive and error-prone for both the customer and migration team.
+
+## Solution
+The UV SQL Tool MCP Server automates the entire process:
+- Generates SQL tables directly from customer CSV files.
+- Automatically creates stored procedures to map legacy column names to logical English names using the provided mapping file.
+- Supports training mode to generate and review SQL before execution.
+
+## Key Benefits
+- **Automation:** Instantly creates SQL tables and procedures, reducing manual effort.
+- **Consistency:** Enforces standardized, readable naming conventions.
+- **Speed:** Accelerates migration timelines by automating code generation.
+- **Quality:** Minimizes human error, improving data quality.
+- **Scalability:** Easily repeatable for multiple files and mappings.
+- **Customer Empowerment:** Allows customers to provide data in simple CSV format without SQL expertise.
+- **Documentation:** Automatically documents source files, mappings, and generated SQL for traceability.
+
+---
+
 # UV SQL Tool - MCP Server
 
 A powerful Model Context Protocol (MCP) server for migrating legacy data into Microsoft Dynamics Finance & Operations (F&O).

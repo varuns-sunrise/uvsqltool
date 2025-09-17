@@ -1,8 +1,16 @@
+"""
+Tool definitions and input schemas for UV SQL Tool MCP server.
+Defines available SQL migration tools and their configuration schemas.
+"""
+
 import json
 import os
 
 
 class Tool:
+    """
+    Represents a migration tool with a name, description, and input schema.
+    """
     def __init__(self, name: str, description: str, input_schema: dict):
         self.name = name
         self.description = description
@@ -10,7 +18,10 @@ class Tool:
 
 
 def get_sql_config_schema():
-    """Get the SQL configuration schema for tools."""
+    """
+    Get the SQL configuration schema for tools.
+    Returns a dictionary describing SQL connection parameters.
+    """
     return {
         "server": {
             "type": "string",
@@ -43,6 +54,7 @@ def get_sql_config_schema():
     }
 
 
+# List of all available SQL migration tools
 ALL_SQL_TOOLS = [
     Tool(
         name="create_table",
@@ -58,6 +70,7 @@ ALL_SQL_TOOLS = [
                     "type": "string",
                     "description": "Name of the table to be created (will be automatically prefixed with 'src'). The table structure will be generated based on the file content."
                 },
+                # SQL connection config
                 **get_sql_config_schema()
             },
             "required": ["csv_file_path", "table_name"]
@@ -77,6 +90,7 @@ ALL_SQL_TOOLS = [
                     "type": "string",
                     "description": "Path to the CSV or pipe-delimited dictionary/mapping file containing column mappings. Expected columns: 'SGE Column Name' (Spanish), 'English Column Name', and 'Field type'."
                 },
+                # SQL connection config
                 **get_sql_config_schema()
             },
             "required": ["table_name", "dictionary_path"]
@@ -84,11 +98,15 @@ ALL_SQL_TOOLS = [
     )
 ]
 
+# Dictionary for quick tool lookup by name
 SQL_TOOLS_BY_NAME = {tool.name: tool for tool in ALL_SQL_TOOLS}
 
 
 def load_mcp_config(config_path="mcp.json"):
-    """Load MCP configuration from a JSON file."""
+    """
+    Load MCP configuration from a JSON file.
+    Returns a dictionary of configuration values.
+    """
     if os.path.exists(config_path):
         with open(config_path, "r", encoding="utf-8") as f:
             return json.load(f)

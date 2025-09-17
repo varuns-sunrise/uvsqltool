@@ -1,3 +1,8 @@
+"""
+Command-line interface for UV SQL Tool MCP server.
+Provides argument parsing, config management, and tool invocation for migration tasks.
+"""
+
 import argparse
 import sys
 import json
@@ -6,7 +11,9 @@ from .config import get_sql_config, create_sample_config, SQLServerConfig
 
 
 def add_sql_config_args(parser):
-    """Add SQL Server configuration arguments to a parser."""
+    """
+    Add SQL Server configuration arguments to a parser.
+    """
     sql_group = parser.add_argument_group('SQL Server Configuration')
     sql_group.add_argument('--server', type=str, help='SQL Server name')
     sql_group.add_argument('--database', type=str, help='Database name')
@@ -21,6 +28,10 @@ def add_sql_config_args(parser):
 
 
 def main():
+    """
+    Main entrypoint for the CLI tool.
+    Handles argument parsing and command dispatch.
+    """
     parser = argparse.ArgumentParser(
         description="UV SQL Tool Command Line Interface",
         prog="uv-sql-tool"

@@ -1,4 +1,7 @@
-"""MCP server entrypoint for uv_sql_tool (for Copilot Workspace)."""
+"""
+MCP server entrypoint for uv_sql_tool (for Copilot Workspace).
+Handles tool registration, request handling, and safe SQL execution.
+"""
 
 import sys
 import json
@@ -12,6 +15,7 @@ from typing import Any, Dict, Optional
 from .tools import ALL_SQL_TOOLS, SQL_TOOLS_BY_NAME, load_mcp_config
 from .schema_generator import generate_create_table_sql, execute_sql_on_azure, generate_stored_procedure
 
+# Try importing MCP server components
 try:
     from mcp.server import Server
     from mcp.types import TextContent, Tool
@@ -21,7 +25,12 @@ except ImportError:
     Tool = None
     TextContent = None
 
+
 def create_app():
+    """
+    Create and configure the MCP server application.
+    Registers tool handlers and manages configuration.
+    """
     class UVSQLToolMCPServer:
         def __init__(self):
             self.logger = logging.getLogger(__name__)
@@ -33,12 +42,16 @@ def create_app():
                 self.app = None
 
         def _setup_handlers(self):
+            """
+            Register MCP tool handlers for listing and calling tools.
+            """
             if not self.app:
                 return
             import traceback
             @self.app.list_tools()
             async def handle_list_tools() -> list:
                 try:
+                    # Return all registered tools with their schemas
                     return [
                         Tool(
                             name=tool.name,
@@ -54,14 +67,18 @@ def create_app():
             @self.app.call_tool()
             async def handle_call_tool(name: str, arguments: Optional[Dict[str, Any]]) -> list:
                 try:
+                    # Execute the requested tool and return the result
                     result = await self._execute_tool(name, arguments or {})
                     return [TextContent(type="text", text=json.dumps(result, indent=2, default=str))]
                 except Exception as e:
                     self.logger.error(f"Exception in handle_call_tool: {e}\n{traceback.format_exc()}")
-                    error_msg = f"Error executing {name}: {str(e)}"
-                    return [TextContent(type="text", text=error_msg)]
+                    raise
 
         async def _execute_tool(self, name: str, arguments: Dict[str, Any]) -> Any:
+            """
+            Execute the specified tool with provided arguments.
+            Handles skip_execution logic and file output for training mode.
+            """
             if name not in SQL_TOOLS_BY_NAME:
                 raise ValueError(f"Unknown tool: {name}")
             

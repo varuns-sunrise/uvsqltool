@@ -1,4 +1,7 @@
-"""Configuration management for UV SQL Tool."""
+"""
+Configuration management for UV SQL Tool MCP server.
+Handles SQL Server connection settings, config loading, and sample config generation.
+"""
 
 import os
 import json
@@ -9,7 +12,10 @@ from pathlib import Path
 
 @dataclass
 class SQLServerConfig:
-    """SQL Server connection configuration."""
+    """
+    SQL Server connection configuration dataclass.
+    Stores all connection parameters and builds ODBC connection string.
+    """
     server: str
     database: str
     username: Optional[str] = None
@@ -24,7 +30,9 @@ class SQLServerConfig:
 
     @property
     def connection_string(self) -> str:
-        """Generate ODBC connection string from configuration."""
+        """
+        Generate ODBC connection string from configuration.
+        """
         parts = [
             f"Driver={{{self.driver}}}",
             f"Server={self.server}"

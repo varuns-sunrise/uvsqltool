@@ -1,3 +1,8 @@
+"""
+SQL schema generation utilities for UV SQL Tool MCP server.
+Includes functions for inferring column types, generating CREATE TABLE SQL, and building stored procedures from mapping files.
+"""
+
 import pyodbc
 import os
 import re
@@ -7,7 +12,10 @@ from .config import SQLServerConfig, get_sql_config
 
 
 def _detect_data_type(value: str) -> str:
-    """Detect SQL data type based on value content."""
+    """
+    Detect SQL data type based on value content.
+    Returns a SQL type string for the given value.
+    """
     if not value or value.strip() == '':
         return 'NVARCHAR(255)'  # Default for empty values
     
