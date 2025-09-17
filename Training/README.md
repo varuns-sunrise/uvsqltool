@@ -236,6 +236,15 @@ uv-sql-tool config test --config-file ./my-config.json
 
 ## Usage
 
+### Naming Conventions
+The UV SQL Tool follows standardized naming conventions for D365 F&O migrations:
+
+- **Tables**: Automatically prefixed with `src` (e.g., `MyTable` becomes `srcMyTable`)
+- **Stored Procedures**: Automatically prefixed with `stg` (e.g., `MyTable` procedure becomes `stgMyTable`)
+- **Generated Files**: Use prefixed names for file organization and clarity
+
+These prefixes help maintain consistency across migration projects and align with Dynamics F&O data management best practices.
+
 ### Command Line Interface
 The UV SQL Tool provides a comprehensive CLI for data migration tasks:
 
@@ -247,17 +256,17 @@ uv-sql-tool list-tools
 
 #### Execute Migration Tools
 ```bash
-# Create table with inline credentials
+# Create table with inline credentials (table will be created as 'srcCustomers')
 uv-sql-tool call-tool create_table \
   --server "myserver.database.windows.net" \
   --database "mydb" \
   --username "myuser" \
   --password "mypass" \
-  --args '{"csv_file_path": "data.csv", "table_name": "customers"}'
+  --args '{"csv_file_path": "data.csv", "table_name": "Customers"}'
 
 # Use environment variables for credentials
 uv-sql-tool call-tool create_table \
-  --args '{"csv_file_path": "data.csv", "table_name": "customers"}'
+  --args '{"csv_file_path": "data.csv", "table_name": "Customers"}'
 
 # Use configuration file
 uv-sql-tool call-tool create_table \
@@ -267,11 +276,19 @@ uv-sql-tool call-tool create_table \
 
 #### Generate Stored Procedures
 ```bash
-# Generate stored procedure from table schema
+# Generate stored procedure from table schema (procedure will be named 'stgCustomers', reference_sp_path is now optional)
 uv-sql-tool call-tool create_stored_procedure \
   --config-file "./config.json" \
   --args '{
-    "table_name": "customers", 
+    "table_name": "Customers", 
+    "dictionary_path": "./data-dictionary.json"
+  }'
+
+# Optional: Include reference stored procedure path for template guidance
+uv-sql-tool call-tool create_stored_procedure \
+  --config-file "./config.json" \
+  --args '{
+    "table_name": "Customers", 
     "dictionary_path": "./data-dictionary.json",
     "reference_sp_path": "./reference-procedures/"
   }'

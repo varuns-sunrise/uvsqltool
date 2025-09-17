@@ -105,18 +105,21 @@ def create_app():
                     sql_folder = Path("generated_sql")
                     sql_folder.mkdir(exist_ok=True)
                     
+                    # Use prefixed table name for file naming
+                    table_name = arguments["table_name"]
+                    prefixed_table_name = f"src{table_name}" if not table_name.startswith("src") else table_name
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    sql_filename = sql_folder / f"{arguments['table_name']}_create_table_{timestamp}.sql"
+                    sql_filename = sql_folder / f"{prefixed_table_name}_create_table_{timestamp}.sql"
                     
                     try:
                         with open(sql_filename, 'w', encoding='utf-8') as f:
-                            f.write(f"-- Generated SQL for table: {arguments['table_name']}\n")
+                            f.write(f"-- Generated SQL for table: {prefixed_table_name}\n")
                             f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
                             f.write(f"-- Source CSV: {arguments['csv_file_path']}\n")
                             f.write(f"-- SKIP_EXECUTION was enabled, SQL not executed\n\n")
                             f.write(sql)
                         return {
-                            "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True). SQL saved to {sql_filename}.",
+                            "message": f"Table '{prefixed_table_name}' creation skipped (skip_execution=True). SQL saved to {sql_filename}.",
                             "sql": sql,
                             "sql_file": str(sql_filename),
                             "skipped": True,
@@ -128,7 +131,7 @@ def create_app():
                         }
                     except Exception as e:
                         return {
-                            "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True). Warning: Could not save SQL file: {str(e)}",
+                            "message": f"Table '{prefixed_table_name}' creation skipped (skip_execution=True). Warning: Could not save SQL file: {str(e)}",
                             "sql": sql,
                             "skipped": True,
                             "error": str(e),
@@ -139,12 +142,15 @@ def create_app():
                             }
                         }
                 execute_sql_on_azure(sql, config=sql_config)
-                return {"message": f"Table '{arguments['table_name']}' created successfully."}
+                # Use prefixed table name in success message too
+                table_name = arguments["table_name"]
+                prefixed_table_name = f"src{table_name}" if not table_name.startswith("src") else table_name
+                return {"message": f"Table '{prefixed_table_name}' created successfully."}
             elif name == "create_stored_procedure":
                 result = generate_stored_procedure(
                     arguments["table_name"],
                     arguments["dictionary_path"],
-                    arguments["reference_sp_path"]
+                    arguments.get("reference_sp_path")  # Use .get() to handle optional parameter
                 )
                 if skip_execution:
                     # Save stored procedure to file even when skipping execution
@@ -152,19 +158,24 @@ def create_app():
                     sql_folder = Path("generated_sql")
                     sql_folder.mkdir(exist_ok=True)
                     
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    sp_filename = sql_folder / f"{arguments['table_name']}_stored_procedure_{timestamp}.sql"
+                    # Use the actual stored procedure name for file naming
+                    table_name = arguments["table_name"]
+                    prefixed_sp_name = f"stg{table_name}" if not table_name.startswith("stg") else table_name
+                    # File name should match the stored procedure name: stgTableName_StoredProcedure.sql
+                    sp_filename = sql_folder / f"{prefixed_sp_name}_StoredProcedure.sql"
                     
                     try:
                         with open(sp_filename, 'w', encoding='utf-8') as f:
                             f.write(f"-- Generated stored procedure for table: {arguments['table_name']}\n")
+                            f.write(f"-- Stored procedure name: {prefixed_sp_name}_StoredProcedure\n")
                             f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
                             f.write(f"-- Dictionary path: {arguments['dictionary_path']}\n")
-                            f.write(f"-- Reference SP path: {arguments['reference_sp_path']}\n")
+                            reference_sp = arguments.get('reference_sp_path')
+                            f.write(f"-- Reference SP path: {reference_sp if reference_sp else 'Not provided'}\n")
                             f.write(f"-- SKIP_EXECUTION was enabled, procedure not executed\n\n")
                             f.write(str(result))  # Convert result to string if needed
                         return {
-                            "message": f"Stored procedure creation skipped (skip_execution=True). SQL saved to {sp_filename}.",
+                            "message": f"Stored procedure '{prefixed_sp_name}_StoredProcedure' creation skipped (skip_execution=True). SQL saved to {sp_filename}.",
                             "procedure": result,
                             "sql_file": str(sp_filename),
                             "skipped": True,

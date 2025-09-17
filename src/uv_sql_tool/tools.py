@@ -46,17 +46,17 @@ def get_sql_config_schema():
 ALL_SQL_TOOLS = [
     Tool(
         name="create_table",
-        description="Creates a new table in the database with configurable SQL Server connection.",
+        description="Creates a new table in the database by analyzing a pipe-delimited text file. Automatically detects column names and data types from the file content. Table names are automatically prefixed with 'src'.",
         input_schema={
             "type": "object",
             "properties": {
                 "csv_file_path": {
                     "type": "string",
-                    "description": "Path to the CSV file containing data for the table."
+                    "description": "Path to the pipe-delimited text file containing data for the table. The first row should contain column headers."
                 },
                 "table_name": {
                     "type": "string",
-                    "description": "Name of the table to be created."
+                    "description": "Name of the table to be created (will be automatically prefixed with 'src'). The table structure will be generated based on the file content."
                 },
                 **get_sql_config_schema()
             },
@@ -65,25 +65,25 @@ ALL_SQL_TOOLS = [
     ),
     Tool(
         name="create_stored_procedure", 
-        description="Generates a stored procedure based on the provided parameters.",
+        description="Generates a stored procedure that creates a staging table and maps columns from a source table using a dictionary/mapping file. The procedure reads Spanish column names from the source table and maps them to English column names in the staging table. Stored procedure names are automatically prefixed with 'stg'. Reference stored procedure path is optional.",
         input_schema={
             "type": "object",
             "properties": {
                 "table_name": {
                     "type": "string",
-                    "description": "Name of the table for which the stored procedure is created."
+                    "description": "Name of the table for which the stored procedure is created (procedure will be automatically prefixed with 'stg')."
                 },
                 "dictionary_path": {
                     "type": "string",
-                    "description": "Path to the dictionary file for the stored procedure."
+                    "description": "Path to the CSV or pipe-delimited dictionary/mapping file containing column mappings. Expected columns: 'SGE Column Name' (Spanish), 'English Column Name', and 'Field type'."
                 },
                 "reference_sp_path": {
                     "type": "string",
-                    "description": "Path to the reference stored procedure."
+                    "description": "Optional path to the reference stored procedure for template reference."
                 },
                 **get_sql_config_schema()
             },
-            "required": ["table_name", "dictionary_path", "reference_sp_path"]
+            "required": ["table_name", "dictionary_path"]
         }
     )
 ]
