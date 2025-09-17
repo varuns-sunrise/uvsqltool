@@ -5,6 +5,8 @@ import json
 import os
 import asyncio
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from .tools import ALL_SQL_TOOLS, SQL_TOOLS_BY_NAME, load_mcp_config
@@ -80,8 +82,6 @@ def create_app():
                 self.logger.info(f"Skipping execution for tool: {name}")
             else:
                 self.logger.info(f"Executing tool: {name}")
-            self.logger.info(f"skip_execution config: {skip_execution_config}")
-            self.logger.info(f"Final skip_execution: {skip_execution}")
             
             # Extract SQL config from arguments if provided
             from .config import get_sql_config
@@ -100,16 +100,44 @@ def create_app():
             if name == "create_table":
                 sql = generate_create_table_sql(arguments["csv_file_path"], arguments["table_name"])
                 if skip_execution:
-                    return {
-                        "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True).",
-                        "sql": sql,
-                        "skipped": True,
-                        "debug": {
-                            "skip_execution_env": skip_execution_env,
-                            "skip_execution_config": skip_execution_config,
-                            "final_skip_execution": skip_execution
+                    # Save SQL to file even when skipping execution
+                    # Create generated_sql folder if it doesn't exist
+                    sql_folder = Path("generated_sql")
+                    sql_folder.mkdir(exist_ok=True)
+                    
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    sql_filename = sql_folder / f"{arguments['table_name']}_create_table_{timestamp}.sql"
+                    
+                    try:
+                        with open(sql_filename, 'w', encoding='utf-8') as f:
+                            f.write(f"-- Generated SQL for table: {arguments['table_name']}\n")
+                            f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
+                            f.write(f"-- Source CSV: {arguments['csv_file_path']}\n")
+                            f.write(f"-- SKIP_EXECUTION was enabled, SQL not executed\n\n")
+                            f.write(sql)
+                        return {
+                            "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True). SQL saved to {sql_filename}.",
+                            "sql": sql,
+                            "sql_file": str(sql_filename),
+                            "skipped": True,
+                            "debug": {
+                                "skip_execution_env": skip_execution_env,
+                                "skip_execution_config": skip_execution_config,
+                                "final_skip_execution": skip_execution
+                            }
                         }
-                    }
+                    except Exception as e:
+                        return {
+                            "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True). Warning: Could not save SQL file: {str(e)}",
+                            "sql": sql,
+                            "skipped": True,
+                            "error": str(e),
+                            "debug": {
+                                "skip_execution_env": skip_execution_env,
+                                "skip_execution_config": skip_execution_config,
+                                "final_skip_execution": skip_execution
+                            }
+                        }
                 execute_sql_on_azure(sql, config=sql_config)
                 return {"message": f"Table '{arguments['table_name']}' created successfully."}
             elif name == "create_stored_procedure":
@@ -119,16 +147,45 @@ def create_app():
                     arguments["reference_sp_path"]
                 )
                 if skip_execution:
-                    return {
-                        "message": "Stored procedure creation skipped (skip_execution=True).",
-                        "procedure": result,
-                        "skipped": True,
-                        "debug": {
-                            "skip_execution_env": skip_execution_env,
-                            "skip_execution_config": skip_execution_config,
-                            "final_skip_execution": skip_execution
+                    # Save stored procedure to file even when skipping execution
+                    # Create generated_sql folder if it doesn't exist
+                    sql_folder = Path("generated_sql")
+                    sql_folder.mkdir(exist_ok=True)
+                    
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    sp_filename = sql_folder / f"{arguments['table_name']}_stored_procedure_{timestamp}.sql"
+                    
+                    try:
+                        with open(sp_filename, 'w', encoding='utf-8') as f:
+                            f.write(f"-- Generated stored procedure for table: {arguments['table_name']}\n")
+                            f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
+                            f.write(f"-- Dictionary path: {arguments['dictionary_path']}\n")
+                            f.write(f"-- Reference SP path: {arguments['reference_sp_path']}\n")
+                            f.write(f"-- SKIP_EXECUTION was enabled, procedure not executed\n\n")
+                            f.write(str(result))  # Convert result to string if needed
+                        return {
+                            "message": f"Stored procedure creation skipped (skip_execution=True). SQL saved to {sp_filename}.",
+                            "procedure": result,
+                            "sql_file": str(sp_filename),
+                            "skipped": True,
+                            "debug": {
+                                "skip_execution_env": skip_execution_env,
+                                "skip_execution_config": skip_execution_config,
+                                "final_skip_execution": skip_execution
+                            }
                         }
-                    }
+                    except Exception as e:
+                        return {
+                            "message": f"Stored procedure creation skipped (skip_execution=True). Warning: Could not save SQL file: {str(e)}",
+                            "procedure": result,
+                            "skipped": True,
+                            "error": str(e),
+                            "debug": {
+                                "skip_execution_env": skip_execution_env,
+                                "skip_execution_config": skip_execution_config,
+                                "final_skip_execution": skip_execution
+                            }
+                        }
                 return {"message": result}
             else:
                 raise ValueError(f"No implementation found for tool: {name}")

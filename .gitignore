@@ -69,6 +69,12 @@ Thumbs.db
 !*config*.template.json
 !*config*.example.json
 
+# Generated SQL files
+generated_sql/
+*.sql
+!**/*.template.sql
+!**/*.example.sql
+
 # SQL Server connection files
 *.sql.bak
 *.mdf
