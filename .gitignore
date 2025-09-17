@@ -54,7 +54,7 @@ venv.bak/
 .uv/
 
 # IDEs
-.vscode/
+.vscode/settings.local.json
 .idea/
 *.swp
 *.swo
@@ -63,3 +63,22 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
+
+# Configuration files with credentials
+*config*.json
+!*config*.template.json
+!*config*.example.json
+
+# SQL Server connection files
+*.sql.bak
+*.mdf
+*.ldf
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+temp/
+tmp/
+*.tmp

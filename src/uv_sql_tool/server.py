@@ -2,11 +2,12 @@
 
 import sys
 import json
+import os
 import asyncio
 import logging
 from typing import Any, Dict, Optional
 
-from .tools import ALL_SQL_TOOLS, SQL_TOOLS_BY_NAME
+from .tools import ALL_SQL_TOOLS, SQL_TOOLS_BY_NAME, load_mcp_config
 from .schema_generator import generate_create_table_sql, execute_sql_on_azure, generate_stored_procedure
 
 try:
@@ -22,6 +23,7 @@ def create_app():
     class UVSQLToolMCPServer:
         def __init__(self):
             self.logger = logging.getLogger(__name__)
+            self.mcp_config = load_mcp_config()
             if Server:
                 self.app = Server("uv-sql-tool-mcp-server")
                 self._setup_handlers()
@@ -61,6 +63,12 @@ def create_app():
             if name not in SQL_TOOLS_BY_NAME:
                 raise ValueError(f"Unknown tool: {name}")
             
+            # Check if execution should be skipped (from environment variable or config file)
+            skip_execution = (
+                os.getenv("SKIP_EXECUTION", "").lower() == "true" or 
+                self.mcp_config.get("skip_execution", False)
+            )
+            
             # Extract SQL config from arguments if provided
             from .config import get_sql_config
             sql_config = None
@@ -77,6 +85,12 @@ def create_app():
             
             if name == "create_table":
                 sql = generate_create_table_sql(arguments["csv_file_path"], arguments["table_name"])
+                if skip_execution:
+                    return {
+                        "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True).",
+                        "sql": sql,
+                        "skipped": True
+                    }
                 execute_sql_on_azure(sql, config=sql_config)
                 return {"message": f"Table '{arguments['table_name']}' created successfully."}
             elif name == "create_stored_procedure":
@@ -85,6 +99,12 @@ def create_app():
                     arguments["dictionary_path"],
                     arguments["reference_sp_path"]
                 )
+                if skip_execution:
+                    return {
+                        "message": "Stored procedure creation skipped (skip_execution=True).",
+                        "procedure": result,
+                        "skipped": True
+                    }
                 return {"message": result}
             else:
                 raise ValueError(f"No implementation found for tool: {name}")

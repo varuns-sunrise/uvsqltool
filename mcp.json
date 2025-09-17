@@ -1,0 +1,8 @@
+{
+  "skip_execution": true,
+  "description": "Configuration file for UV SQL Tool MCP Server",
+  "settings": {
+    "log_level": "INFO",
+    "default_database": "D365Migration"
+  }
+}

@@ -1,3 +1,7 @@
+import json
+import os
+
+
 class Tool:
     def __init__(self, name: str, description: str, input_schema: dict):
         self.name = name
@@ -85,3 +89,11 @@ ALL_SQL_TOOLS = [
 ]
 
 SQL_TOOLS_BY_NAME = {tool.name: tool for tool in ALL_SQL_TOOLS}
+
+
+def load_mcp_config(config_path="mcp.json"):
+    """Load MCP configuration from a JSON file."""
+    if os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}

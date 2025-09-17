@@ -1,0 +1,22 @@
+{
+  "servers": {
+    "uv-sql-tool": {
+      "command": "uvx",
+      "args": ["uv-sql-server"],
+      "env": {
+        "SQL_SERVER": "your-server.database.windows.net",
+        "SQL_DATABASE": "your_database",
+        "SQL_USERNAME": "your_username",
+        "SQL_PASSWORD": "your_password",
+        "SQL_DRIVER": "ODBC Driver 17 for SQL Server",
+        "SQL_PORT": "",
+        "SQL_TRUSTED_CONNECTION": "false",
+        "SQL_ENCRYPT": "true",
+        "SQL_TRUST_SERVER_CERTIFICATE": "false",
+        "SQL_CONNECTION_TIMEOUT": "30",
+        "SQL_COMMAND_TIMEOUT": "30",
+        "SKIP_EXECUTION": "true"
+      }
+    }
+  }
+}

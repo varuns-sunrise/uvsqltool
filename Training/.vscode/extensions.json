@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-vscode.powershell",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "ms-vscode.vscode-json",
+    "ms-azuretools.vscode-azureresourcegroups",
+    "ms-mssql.mssql",
+    "ms-vscode.azure-account",
+    "ms-azuretools.vscode-azurefunctions",
+    "redhat.vscode-yaml"
+  ]
+}

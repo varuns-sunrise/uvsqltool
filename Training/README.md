@@ -1,31 +1,8 @@
-# UV SQL Tool - MCP Server
-A powerful Model Context Protocol (MCP) server for migrating legacy data into Microsoft Dynamics Finance & Operations (F&O). This tool provides configurable SQL Server connectivity, schema generation, and automated migration utilities designed for enterprise environments with safe training modes.
+# UV SQL Tool
+A powerful command-line tool for migrating legacy data into Microsoft Dynamics Finance & Operations (F&O). This tool provides configurable SQL Server connectivity, schema generation, and automated migration utilities designed for enterprise environments.
 
 ## Overview
-The UV SQL Tool streamlines data transformation and migration processes for Dynamics Finance & Operations implementations. It offers flexible configuration options for SQL Server connections, automated schema generation, and comprehensive migration utilities that integrate seamlessly with modern development workflows and AI assistants through MCP.
-
-## 🚀 Quick Start for Teams
-
-### Using the MCP Server (Recommended)
-1. **Install the tool globally:**
-   ```bash
-   uv tool install git+https://github.com/varuns-sunrise/uvsqltool.git
-   ```
-
-2. **Copy the training configuration:**
-   Copy `Training/.vscode/mcp.json` to your Claude Desktop configuration or MCP client
-
-3. **Update connection details:**
-   Edit the `SQL_*` environment variables in the configuration
-
-4. **Start using SQL tools safely:**
-   The tool runs in safe mode by default (`SKIP_EXECUTION=true`) for training
-
-### Training Mode Features
-- ✅ **Safe by default**: SQL generation without execution
-- ✅ **Team sharing**: Standardized configuration files
-- ✅ **Easy setup**: One command installation with `uv tool install`
-- ✅ **Environment control**: Toggle execution with environment variables
+The UV SQL Tool streamlines data transformation and migration processes for Dynamics Finance & Operations implementations. It offers flexible configuration options for SQL Server connections, automated schema generation, and comprehensive migration utilities that integrate seamlessly with modern development workflows.
 
 ## Prerequisites
 Before using the UV SQL Tool, ensure you have the following components configured. Prerequisites are organized into Required (essential for basic functionality) and Optional (enhances capabilities).
@@ -256,50 +233,6 @@ uv-sql-tool config show
 # Test with config file
 uv-sql-tool config test --config-file ./my-config.json
 ```
-
-## MCP Server Configuration
-
-The UV SQL Tool can run as an MCP (Model Context Protocol) server, allowing integration with AI assistants like Claude Desktop.
-
-### Training Configuration
-For team sharing and safe training environments, use the provided configuration:
-
-```json
-{
-  "servers": {
-    "uv-sql-tool": {
-      "command": "uvx",
-      "args": ["uv-sql-server"],
-      "env": {
-        "SQL_SERVER": "your-server.database.windows.net",
-        "SQL_DATABASE": "D365Migration",
-        "SQL_USERNAME": "your_username",
-        "SQL_PASSWORD": "your_password",
-        "SQL_TRUSTED_CONNECTION": "false",
-        "SQL_ENCRYPT": "true",
-        "SKIP_EXECUTION": "true"
-      }
-    }
-  }
-}
-```
-
-### Environment Variables for MCP
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SKIP_EXECUTION` | Skip actual SQL execution (safe mode) | `false` |
-| `SQL_SERVER` | SQL Server hostname/IP | Required |
-| `SQL_DATABASE` | Database name | Required |
-| `SQL_USERNAME` | Username for authentication | Required |
-| `SQL_PASSWORD` | Password for authentication | Required |
-| `SQL_ENCRYPT` | Use encrypted connection | `true` |
-| `SQL_TRUSTED_CONNECTION` | Use Windows authentication | `false` |
-
-### Safety Features
-- **Training Mode**: Set `SKIP_EXECUTION=true` to generate SQL without executing
-- **Team Sharing**: Standardized configuration files in `Training/` folder
-- **Environment Control**: Easy toggle between safe and production modes
 
 ## Usage
 
