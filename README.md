@@ -269,7 +269,11 @@ For team sharing and safe training environments, use the provided configuration:
   "servers": {
     "uv-sql-tool": {
       "command": "uvx",
-      "args": ["uv-sql-server"],
+      "args": [
+        "--from",
+        "git+https://github.com/varuns-sunrise/uvsqltool.git",
+        "uv-sql-server"
+      ],
       "env": {
         "SQL_SERVER": "your-server.database.windows.net",
         "SQL_DATABASE": "D365Migration",

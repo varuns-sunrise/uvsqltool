@@ -64,10 +64,24 @@ def create_app():
                 raise ValueError(f"Unknown tool: {name}")
             
             # Check if execution should be skipped (from environment variable or config file)
+            skip_execution_env = os.getenv("SKIP_EXECUTION", "")
+            skip_execution_config = self.mcp_config.get("skip_execution", False)
             skip_execution = (
-                os.getenv("SKIP_EXECUTION", "").lower() == "true" or 
-                self.mcp_config.get("skip_execution", False)
+                skip_execution_env.lower() in ["true", "1", "yes", "on"] or 
+                skip_execution_config
             )
+            
+            # Log configuration for debugging
+            self.logger.info(f"SKIP_EXECUTION env var: '{skip_execution_env}'")
+            self.logger.info(f"skip_execution from config: {skip_execution_config}")
+            self.logger.info(f"Final skip_execution decision: {skip_execution}")
+            
+            if skip_execution:
+                self.logger.info(f"Skipping execution for tool: {name}")
+            else:
+                self.logger.info(f"Executing tool: {name}")
+            self.logger.info(f"skip_execution config: {skip_execution_config}")
+            self.logger.info(f"Final skip_execution: {skip_execution}")
             
             # Extract SQL config from arguments if provided
             from .config import get_sql_config
@@ -89,7 +103,12 @@ def create_app():
                     return {
                         "message": f"Table '{arguments['table_name']}' creation skipped (skip_execution=True).",
                         "sql": sql,
-                        "skipped": True
+                        "skipped": True,
+                        "debug": {
+                            "skip_execution_env": skip_execution_env,
+                            "skip_execution_config": skip_execution_config,
+                            "final_skip_execution": skip_execution
+                        }
                     }
                 execute_sql_on_azure(sql, config=sql_config)
                 return {"message": f"Table '{arguments['table_name']}' created successfully."}
@@ -103,7 +122,12 @@ def create_app():
                     return {
                         "message": "Stored procedure creation skipped (skip_execution=True).",
                         "procedure": result,
-                        "skipped": True
+                        "skipped": True,
+                        "debug": {
+                            "skip_execution_env": skip_execution_env,
+                            "skip_execution_config": skip_execution_config,
+                            "final_skip_execution": skip_execution
+                        }
                     }
                 return {"message": result}
             else:
