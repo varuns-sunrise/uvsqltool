@@ -104,43 +104,19 @@ def create_app():
                     # Create generated_sql folder if it doesn't exist
                     sql_folder = Path("generated_sql")
                     sql_folder.mkdir(exist_ok=True)
-                    
-                    # Use prefixed table name for file naming
+                    # Use only the table name for file naming
                     table_name = arguments["table_name"]
-                    prefixed_table_name = f"src{table_name}" if not table_name.startswith("src") else table_name
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    sql_filename = sql_folder / f"{prefixed_table_name}_create_table_{timestamp}.sql"
-                    
+                    sql_filename = sql_folder / f"{table_name}.sql"
                     try:
                         with open(sql_filename, 'w', encoding='utf-8') as f:
-                            f.write(f"-- Generated SQL for table: {prefixed_table_name}\n")
-                            f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
-                            f.write(f"-- Source CSV: {arguments['csv_file_path']}\n")
-                            f.write(f"-- SKIP_EXECUTION was enabled, SQL not executed\n\n")
-                            f.write(sql)
+                            f.write(str(sql))
                         return {
-                            "message": f"Table '{prefixed_table_name}' creation skipped (skip_execution=True). SQL saved to {sql_filename}.",
-                            "sql": sql,
+                            "message": f"Table SQL for '{table_name}' creation skipped (skip_execution=True). SQL saved to {sql_filename}.",
                             "sql_file": str(sql_filename),
-                            "skipped": True,
-                            "debug": {
-                                "skip_execution_env": skip_execution_env,
-                                "skip_execution_config": skip_execution_config,
-                                "final_skip_execution": skip_execution
-                            }
+                            "sql": str(sql)
                         }
                     except Exception as e:
-                        return {
-                            "message": f"Table '{prefixed_table_name}' creation skipped (skip_execution=True). Warning: Could not save SQL file: {str(e)}",
-                            "sql": sql,
-                            "skipped": True,
-                            "error": str(e),
-                            "debug": {
-                                "skip_execution_env": skip_execution_env,
-                                "skip_execution_config": skip_execution_config,
-                                "final_skip_execution": skip_execution
-                            }
-                        }
+                        return {"error": str(e)}
                 execute_sql_on_azure(sql, config=sql_config)
                 # Use prefixed table name in success message too
                 table_name = arguments["table_name"]
@@ -149,8 +125,7 @@ def create_app():
             elif name == "create_stored_procedure":
                 result = generate_stored_procedure(
                     arguments["table_name"],
-                    arguments["dictionary_path"],
-                    arguments.get("reference_sp_path")  # Use .get() to handle optional parameter
+                    arguments["dictionary_path"]
                 )
                 if skip_execution:
                     # Save stored procedure to file even when skipping execution
@@ -170,8 +145,6 @@ def create_app():
                             f.write(f"-- Stored procedure name: {prefixed_sp_name}_StoredProcedure\n")
                             f.write(f"-- Generated at: {datetime.now().isoformat()}\n")
                             f.write(f"-- Dictionary path: {arguments['dictionary_path']}\n")
-                            reference_sp = arguments.get('reference_sp_path')
-                            f.write(f"-- Reference SP path: {reference_sp if reference_sp else 'Not provided'}\n")
                             f.write(f"-- SKIP_EXECUTION was enabled, procedure not executed\n\n")
                             f.write(str(result))  # Convert result to string if needed
                         return {

@@ -276,7 +276,7 @@ uv-sql-tool call-tool create_table \
 
 #### Generate Stored Procedures
 ```bash
-# Generate stored procedure from table schema (procedure will be named 'stgCustomers', reference_sp_path is now optional)
+# Generate stored procedure from table schema (procedure will be named 'stgCustomers')
 uv-sql-tool call-tool create_stored_procedure \
   --config-file "./config.json" \
   --args '{
@@ -289,8 +289,7 @@ uv-sql-tool call-tool create_stored_procedure \
   --config-file "./config.json" \
   --args '{
     "table_name": "Customers", 
-    "dictionary_path": "./data-dictionary.json",
-    "reference_sp_path": "./reference-procedures/"
+    "dictionary_path": "./data-dictionary.json"
   }'
 ```
 

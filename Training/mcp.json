@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "uv-sql-tool": {
+      "command": "uv",
+      "args": ["tool", "run", "uv-sql-tool"],
+      "env": {
+        "SQL_SERVER": "your-server.database.windows.net",
+        "SQL_DATABASE": "D365Migration",
+        "SQL_USERNAME": "your_username",
+        "SQL_PASSWORD": "your_password",
+        "SQL_TRUSTED_CONNECTION": "false",
+        "SQL_ENCRYPT": "true",
+        "SKIP_EXECUTION": "true"
+      }
+    }
+  }
+}

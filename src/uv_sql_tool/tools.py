@@ -71,15 +71,11 @@ ALL_SQL_TOOLS = [
             "properties": {
                 "table_name": {
                     "type": "string",
-                    "description": "Name of the table for which the stored procedure is created (procedure will be automatically prefixed with 'stg')."
+                    "description": "Name of the table for which the stored procedure is created."
                 },
                 "dictionary_path": {
                     "type": "string",
                     "description": "Path to the CSV or pipe-delimited dictionary/mapping file containing column mappings. Expected columns: 'SGE Column Name' (Spanish), 'English Column Name', and 'Field type'."
-                },
-                "reference_sp_path": {
-                    "type": "string",
-                    "description": "Optional path to the reference stored procedure for template reference."
                 },
                 **get_sql_config_schema()
             },

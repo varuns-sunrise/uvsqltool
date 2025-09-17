@@ -328,9 +328,8 @@ def _get_sql_data_type(field_type: str) -> str:
         return 'NVARCHAR(MAX)'  # Default for strings
 
 
-def generate_stored_procedure(table_name: str, dictionary_path: str, reference_sp_path: str = None) -> str:
+def generate_stored_procedure(table_name: str, dictionary_path: str) -> str:
     # Function to generate a stored procedure based on the provided parameters
-    # reference_sp_path is optional and not currently used in the implementation
     # Always prefix stored procedure names with "stg"
     prefixed_sp_name = f"stg{table_name}" if not table_name.startswith("stg") else table_name
     
@@ -419,7 +418,6 @@ BEGIN
 END
 
 -- Generated from dictionary: {dictionary_path}
--- Reference SP path: {reference_sp_path if reference_sp_path else 'Not provided'}
 -- Source table: dbo.{prefixed_table_name}
 -- Target table: dbo.{prefixed_sp_name}
 -- Columns mapped: {len(mappings)}
@@ -438,7 +436,6 @@ BEGIN
 
     -- Basic stored procedure logic (dictionary parsing failed)
     -- Dictionary path: {dictionary_path}
-    -- Reference SP path: {reference_sp_path if reference_sp_path else 'Not provided'}
     SELECT * FROM dbo.{prefixed_table_name};
 END
 
