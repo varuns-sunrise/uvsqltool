@@ -26,6 +26,8 @@ A powerful Model Context Protocol (MCP) server for migrating legacy data into Mi
 
 ## Dependencies & Prerequisites
 
+### Option 1: Native Installation
+
 - **UV Python Package Manager**  
   Install UV for MCP tool management:
   ```powershell
@@ -41,6 +43,12 @@ A powerful Model Context Protocol (MCP) server for migrating legacy data into Mi
 - **PowerShell 5.1+** (for scripting)
 - **VS Code with MCP extension** (optional, for best experience)
 
+### Option 2: Docker Installation
+
+- **Docker Desktop** or **Docker Engine**
+- **SQL Server Access** (same as above)
+- No need to install UV, Python, or ODBC drivers manually - everything is included in the Docker image
+
 ## Common Issues & Solutions
 
 - **Access Denied (Windows):**  
@@ -54,9 +62,19 @@ A powerful Model Context Protocol (MCP) server for migrating legacy data into Mi
 
 ## Testing Installation
 
+### Native Installation
 ```powershell
 uv --version
 uvx --from "git+https://github.com/varuns-sunrise/uvsqltool.git" uv-sql-server --help
+```
+
+### Docker Installation
+```bash
+# Test Docker image build
+docker build . -t uvsqlserver:latest
+
+# Test running the container
+docker run --rm uvsqlserver:latest --help
 ```
 
 ---
@@ -79,12 +97,60 @@ uvx --from "git+https://github.com/varuns-sunrise/uvsqltool.git" uv-sql-server -
 3. **Run the MCP server:**
    - Use your MCP config or the command above to start the server.
 
+---
+
+## 🐳 Docker Support
+
+### Building the Docker Image
+
+The project includes a Dockerfile that sets up a complete environment with all necessary ODBC drivers and dependencies.
+
+```bash
+# Build the Docker image
+docker build . -t uvsqlserver:latest
+```
+
+### Running with Docker
+
+```bash
+# Run the container with environment variables
+docker run --rm -i \
+           -e SQL_SERVER="your-server.database.windows.net" \
+           -e SQL_DATABASE="your_database" \
+           -e SQL_USERNAME="your_username" \
+           -e SQL_PASSWORD="your_password" \
+           -e SQL_DRIVER="ODBC Driver 18 for SQL Server" \
+           -e SKIP_EXECUTION="True" \
+           uvsqlserver:latest
+```
+
+### Docker Features
+
+- **Pre-installed ODBC Drivers**: Microsoft ODBC Driver 18 for SQL Server
+- **Security**: Runs as non-root user (`sun_mcp`)
+- **Python 3.13**: Latest Python with UV package manager
+- **Ready-to-use**: All dependencies pre-installed and configured
+
+### Docker Environment Variables
+
+The Docker container supports the same environment variables as the native installation:
+- `SQL_SERVER`: Your SQL Server instance
+- `SQL_DATABASE`: Target database name
+- `SQL_USERNAME`: Database username
+- `SQL_PASSWORD`: Database password
+- `SQL_DRIVER`: ODBC Driver (defaults to "ODBC Driver 18 for SQL Server")
+- `SKIP_EXECUTION`: Set to "True" for training mode
+
+---
+
 ## Example MCP Configuration
 
+### Native Installation (using uvx)
 ```json
 {
   "servers": {
     "uv-sql-tool": {
+      "type": "stdio",
       "command": "uvx",
       "args": [
         "--from",
@@ -92,15 +158,117 @@ uvx --from "git+https://github.com/varuns-sunrise/uvsqltool.git" uv-sql-server -
         "uv-sql-server"
       ],
       "env": {
-        "SQL_SERVER": "your-server.database.windows.net",
-        "SQL_DATABASE": "your_database",
-        "SQL_USERNAME": "your_username",
-        "SQL_PASSWORD": "your_password",
-        "SQL_DRIVER": "ODBC Driver 17 for SQL Server",
+        "SQL_SERVER": "${input:SQL_SERVER}",
+        "SQL_DATABASE": "${input:SQL_DATABASE}",
+        "SQL_USERNAME": "${input:SQL_USERNAME}",
+        "SQL_PASSWORD": "${input:SQL_PASSWORD}",
+        "SQL_DRIVER": "${input:SQL_DRIVER}",
         "SKIP_EXECUTION": "True"
       }
     }
-  }
+  },
+  "inputs": [
+    {
+      "id": "SQL_SERVER",
+      "type": "promptString",
+      "description": "The SQL Server name (e.g., your-server.database.windows.net)",
+      "password": false
+    },
+    {
+      "id": "SQL_DATABASE",
+      "type": "promptString",
+      "description": "The SQL Database name",
+      "password": false
+    },
+    {
+      "id": "SQL_USERNAME",
+      "type": "promptString",
+      "description": "The SQL Server username",
+      "password": false
+    },
+    {
+      "id": "SQL_PASSWORD",
+      "type": "promptString",
+      "description": "The SQL Server password",
+      "password": true
+    },
+    {
+      "id": "SQL_DRIVER",
+      "type": "pickString",
+      "description": "The ODBC Driver for SQL Server",
+      "options": [
+        "ODBC Driver 17 for SQL Server",
+        "ODBC Driver 18 for SQL Server"
+      ],
+      "default": "ODBC Driver 17 for SQL Server"
+    }
+  ]
+}
+```
+
+### Docker Installation (recommended)
+```json
+{
+  "servers": {
+    "uv-sql-tool": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-e",
+        "SQL_SERVER=${input:SQL_SERVER}",
+        "-e",
+        "SQL_DATABASE=${input:SQL_DATABASE}",
+        "-e",
+        "SQL_USERNAME=${input:SQL_USERNAME}",
+        "-e",
+        "SQL_PASSWORD=${input:SQL_PASSWORD}",
+        "-e",
+        "SQL_DRIVER=${input:SQL_DRIVER}",
+        "-e",
+        "SKIP_EXECUTION=True",
+        "uvsqlserver:latest"
+      ]
+    }
+  },
+  "inputs": [
+    {
+      "id": "SQL_SERVER",
+      "type": "promptString",
+      "description": "The SQL Server name (e.g., your-server.database.windows.net)",
+      "password": false
+    },
+    {
+      "id": "SQL_DATABASE",
+      "type": "promptString",
+      "description": "The SQL Database name",
+      "password": false
+    },
+    {
+      "id": "SQL_USERNAME",
+      "type": "promptString",
+      "description": "The SQL Server username",
+      "password": false
+    },
+    {
+      "id": "SQL_PASSWORD",
+      "type": "promptString",
+      "description": "The SQL Server password",
+      "password": true
+    },
+    {
+      "id": "SQL_DRIVER",
+      "type": "pickString",
+      "description": "The ODBC Driver for SQL Server",
+      "options": [
+        "ODBC Driver 17 for SQL Server",
+        "ODBC Driver 18 for SQL Server"
+      ],
+      "default": "ODBC Driver 17 for SQL Server"
+    }
+  ]
 }
 ```
 
