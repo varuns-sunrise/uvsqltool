@@ -1,0 +1,68 @@
+version: 2
+updates:
+  # Python dependencies managed by UV
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "main"
+    reviewers:
+      - "varuns-sunrise"
+    assignees:
+      - "varuns-sunrise"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    groups:
+      # Group core Python dependencies
+      core-python:
+        patterns:
+          - "httpx*"
+          - "pydantic*"
+          - "python-dotenv*"
+      # Group MCP dependencies
+      mcp-dependencies:
+        patterns:
+          - "mcp*"
+      # Group development dependencies
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "black*"
+          - "flake8*"
+          - "mypy*"
+          - "pre-commit*"
+      # Group build dependencies
+      build-dependencies:
+        patterns:
+          - "hatchling*"
+          - "build*"
+          - "twine*"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    target-branch: "main"
+    reviewers:
+      - "varuns-sunrise"
+    assignees:
+      - "varuns-sunrise"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    open-pull-requests-limit: 3
+    groups:
+      # Group all GitHub Actions updates
+      github-actions:
+        patterns:
+          - "*"
